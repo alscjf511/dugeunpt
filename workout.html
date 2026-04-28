@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>DuguenPT 운동 트래커</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f4f4f1;--card:#fff;--border:rgba(0,0,0,0.09);
+  --text:#1a1a18;--sec:#6b6b67;--hint:#a8a8a2;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-t:#1d4ed8;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-t:#15803d;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-t:#b45309;
+  --red:#dc2626;--red-bg:#fef2f2;--red-t:#b91c1c;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-t:#6d28d9;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;
+  --sh:0 1px 3px rgba(0,0,0,0.07);
+  --sh-md:0 4px 16px rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:80px}
+.hd{background:var(--card);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
+.logo{font-size:16px;font-weight:700}.logo span{color:var(--blue)}
+.mode-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.mode-badge.trainer{background:var(--blue-bg);color:var(--blue-t)}
+.mode-badge.member{background:var(--green-bg);color:var(--green-t)}
+.wrap{max-width:480px;margin:0 auto;padding:14px 12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.ctitle{font-size:14px;font-weight:700;margin-bottom:10px}
+.ctitle small{font-size:11px;font-weight:400;color:var(--hint);margin-left:5px}
+.field{margin-bottom:10px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--sec);margin-bottom:3px}
+.field input,.field select,.field textarea{width:100%;font-size:14px;padding:9px 11px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;-webkit-appearance:none}
+.field textarea{resize:none;height:72px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.btn{width:100%;padding:12px;font-size:14px;font-weight:700;border-radius:var(--r-md);border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:opacity .15s;margin-top:7px}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.25)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.25)}
+.btn-amber{background:var(--amber);color:#fff;}
+.btn-gray{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-red{background:var(--red-bg);color:var(--red-t);border:1px solid #f09595}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:600;margin-top:0}
+.btn:hover{opacity:.88}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;color:var(--sec);background:var(--card);font-family:'Noto Sans KR',sans-serif;transition:all .15s;user-select:none}
+.chip.on{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-t);font-weight:600}
+.chip.green.on{background:var(--green-bg);border-color:var(--green);color:var(--green-t)}
+
+/* 운동카드 */
+.ex-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;box-shadow:var(--sh)}
+.ex-top{display:flex;gap:10px;padding:10px 12px;background:var(--bg);align-items:center}
+.ex-img{width:50px;height:50px;border-radius:var(--r-sm);object-fit:cover;flex-shrink:0;background:#e0e0dc}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:14px;font-weight:700;margin-bottom:1px}
+.ex-target{font-size:11px;color:var(--sec)}
+.ex-prev{font-size:11px;color:var(--blue-t);background:var(--blue-bg);padding:2px 7px;border-radius:8px;font-weight:500;display:inline-block;margin-top:2px}
+.ex-phase{font-size:11px;color:var(--green-t);background:var(--green-bg);padding:2px 7px;border-radius:8px;font-weight:600;flex-shrink:0;align-self:flex-start}
+.sets-table{width:100%;border-collapse:collapse}
+.sets-table th{font-size:11px;font-weight:600;color:var(--hint);padding:6px 6px;text-align:center;background:var(--bg);border-bottom:1px solid var(--border)}
+.sets-table td{padding:7px 5px;text-align:center;border-bottom:1px solid var(--border)}
+.sets-table tr:last-child td{border-bottom:none}
+.set-inp{width:100%;padding:7px 3px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;text-align:center;background:var(--bg);font-family:'Noto Sans KR',sans-serif;-webkit-appearance:none;min-width:0}
+.set-inp:focus{outline:none;border-color:var(--blue)}
+.set-chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:14px;transition:all .15s}
+.set-chk.done{background:var(--green);border-color:var(--green);color:#fff}
+.set-del{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;color:var(--hint);font-size:14px;line-height:1;transition:all .15s}
+.set-del:hover{background:var(--red-bg);border-color:var(--red);color:var(--red-t)}
+.add-set-btn{width:100%;padding:8px;font-size:12px;font-weight:600;color:var(--blue-t);background:var(--blue-bg);border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif}
+
+/* 프로그램 라이브러리 */
+.prog-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:8px;box-shadow:var(--sh)}
+.prog-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.prog-name{font-size:14px;font-weight:700}
+.prog-meta{font-size:11px;color:var(--sec);margin-top:2px}
+.prog-actions{display:flex;gap:6px;flex-shrink:0}
+.prog-week-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px}
+.pw-blk{text-align:center;padding:6px 4px;border-radius:var(--r-sm);font-size:10px;font-weight:600}
+.pw-blk.adapt{background:#E1F5EE;color:#085041}
+.pw-blk.volume{background:#E6F1FB;color:#0C447C}
+.pw-blk.intensity{background:#EEEDFE;color:#3C3489}
+.pw-blk.deload{background:#FCEBEB;color:#791F1F}
+
+/* 전체 프로그램 보기 */
+.full-prog-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:10px}
+.week-tab-scroll{display:flex;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.week-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--sec);border:none;background:none;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;border-bottom:2px solid transparent;transition:all .15s}
+.week-tab.on{color:var(--blue-t);border-bottom-color:var(--blue);background:var(--card)}
+.week-content{padding:12px}
+.day-row{padding:10px 0;border-bottom:1px solid var(--border)}
+.day-row:last-child{border-bottom:none}
+.day-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.day-row-name{font-size:13px;font-weight:700}
+.day-row-focus{font-size:11px;color:var(--sec);background:var(--bg);padding:2px 8px;border-radius:8px}
+.day-ex-list{display:flex;flex-direction:column;gap:3px}
+.day-ex-row{display:flex;justify-content:space-between;font-size:12px;color:var(--sec);padding:2px 0}
+
+/* 체중/차트 */
+.wt-big{text-align:center;padding:14px 0}
+.wt-num{font-size:46px;font-weight:700;color:var(--text);line-height:1}
+.wt-unit{font-size:15px;color:var(--sec);margin-left:3px}
+.wt-diff{font-size:13px;font-weight:600;margin-top:5px}
+.wt-diff.up{color:var(--amber-t)}.wt-diff.dn{color:var(--green-t)}
+.chart-wrap{overflow-x:auto;padding:4px 0}
+.chart-inner{display:flex;align-items:flex-end;gap:5px;padding:0 6px;min-height:100px}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:22px}
+.bar{width:100%;border-radius:3px 3px 0 0;min-height:4px}
+.bar-lbl{font-size:9px;color:var(--sec);margin-top:2px;white-space:nowrap}
+.bar-val{font-size:9px;font-weight:600;color:var(--sec);margin-bottom:1px}
+
+/* 피드백 */
+.fb-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;margin-bottom:8px;box-shadow:var(--sh)}
+.fb-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.badge-pend{background:var(--amber-bg);color:var(--amber-t)}
+.badge-done{background:var(--green-bg);color:var(--green-t)}
+.fb-reply{background:var(--blue-bg);border-radius:var(--r-sm);padding:8px 10px;font-size:12px;color:var(--blue-t);margin-top:6px;line-height:1.5}
+
+/* 주기화 */
+.phase-bar{display:flex;gap:3px;margin-bottom:5px}
+.phase-blk{flex:1;height:5px;border-radius:2px}
+.phase-blk.adapt{background:#5DCAA5}.phase-blk.volume{background:#378ADD}
+.phase-blk.intensity{background:#534AB7}.phase-blk.deload{background:#E24B4A}
+.phase-blk.off{background:var(--border)}
+.phase-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px}
+.phase-tag.adapt{background:#E1F5EE;color:#085041}.phase-tag.volume{background:#E6F1FB;color:#0C447C}
+.phase-tag.intensity{background:#EEEDFE;color:#3C3489}.phase-tag.deload{background:#FCEBEB;color:#791F1F}
+
+/* 회원카드 */
+.mem-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--sh)}
+.mem-av{width:40px;height:40px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--blue-t);flex-shrink:0}
+.mem-info{flex:1;min-width:0}
+.mem-name{font-size:14px;font-weight:700}
+.mem-sub{font-size:11px;color:var(--sec);margin-top:1px}
+.notif{background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px}
+
+/* 비교행 */
+.cmp-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.cmp-row:last-child{border-bottom:none}
+.cmp-name{flex:1;font-size:13px;font-weight:600}
+.cmp-diff{font-size:11px;font-weight:600;padding:1px 6px;border-radius:8px;margin-left:5px}
+.cmp-diff.up{background:var(--green-bg);color:var(--green-t)}
+.cmp-diff.dn{background:var(--red-bg);color:var(--red-t)}
+
+/* 네비 */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,0.05)}
+.nb{flex:1;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:none;font-family:'Noto Sans KR',sans-serif}
+.ni{font-size:19px;line-height:1}
+.nl{font-size:10px;font-weight:600;color:var(--sec)}
+.nb.on .nl{color:var(--blue)}
+
+/* 기타 */
+.loading{display:flex;align-items:center;justify-content:center;padding:36px;flex-direction:column;gap:10px}
+.spin{width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);background:#1a1a18;color:#fff;padding:9px 20px;border-radius:18px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:28px 16px;color:var(--hint);font-size:13px}
+.sec-lbl{font-size:12px;font-weight:700;color:var(--text);margin:14px 0 7px;text-transform:uppercase;letter-spacing:.04em}
+.fade{animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* 랜딩 */
+.land{max-width:400px;margin:0 auto;padding:36px 16px;text-align:center}
+.land h1{font-size:24px;font-weight:700;margin-bottom:6px}
+.land h1 span{color:var(--blue)}
+.land p{font-size:14px;color:var(--sec);margin-bottom:28px}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.mc{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:22px 14px;cursor:pointer;transition:all .2s}
+.mc:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.mc.blue:hover,.mc.blue.sel{border-color:var(--blue);background:var(--blue-bg)}
+.mc.green:hover,.mc.green.sel{border-color:var(--green);background:var(--green-bg)}
+.mc-ic{font-size:28px;margin-bottom:6px}
+.mc-t{font-size:14px;font-weight:700;margin-bottom:3px}
+.mc-d{font-size:11px;color:var(--sec)}
+.mc.blue .mc-t{color:var(--blue-t)}
+.mc.green .mc-t{color:var(--green-t)}
+
+/* 운동 편집 행 */
+.edit-ex-row{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--border)}
+.edit-ex-row:last-child{border-bottom:none}
+.edit-ex-name{flex:1;font-size:13px;font-weight:600}
+.mini-inp{width:44px;padding:5px 4px;border:1px solid var(--border);border-radius:var(--r-sm);text-align:center;font-size:13px;background:var(--bg);-webkit-appearance:none}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="logo">Duguen<span>PT</span></div>
+  <div id="badge" style="display:none" class="mode-badge"></div>
+</header>
+
+<div id="landView" class="fade">
+  <div class="land">
+    <h1>Duguen<span>PT</span></h1>
+    <p>운동 기록 · 체중 · 피드백을<br>한 곳에서 관리하세요</p>
+    <div class="mode-cards">
+      <div class="mc blue" onclick="selMode('trainer')"><div class="mc-ic">🏋️</div><div class="mc-t">트레이너</div><div class="mc-d">회원 관리 · 프로그램</div></div>
+      <div class="mc green" onclick="selMode('member')"><div class="mc-ic">💪</div><div class="mc-t">회원</div><div class="mc-d">운동 기록 · 체중</div></div>
+    </div>
+    <div id="tLoginBox" style="display:none" class="card fade">
+      <div class="field"><label>트레이너 비밀번호</label><input type="password" id="tPw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')tLogin()"/></div>
+      <button class="btn btn-blue" onclick="tLogin()">입장</button>
+      <div id="tErr" style="display:none;font-size:12px;color:var(--red);margin-top:6px;text-align:center">비밀번호가 올바르지 않습니다</div>
+    </div>
+    <div id="mLoginBox" style="display:none" class="card fade">
+      <div class="field"><label>회원 코드</label><input type="text" id="mCode" placeholder="예: K7A2" style="text-transform:uppercase;font-size:20px;text-align:center;letter-spacing:4px" maxlength="4" onkeydown="if(event.key==='Enter')mLogin()" oninput="this.value=this.value.toUpperCase()"/></div>
+      <button class="btn btn-green" onclick="mLogin()">입장</button>
+      <div id="mErr" style="display:none;font-size:12px;color:var(--red);margin-top:6px;text-align:center">코드를 찾을 수 없습니다</div>
+    </div>
+  </div>
+</div>
+
+<div id="tView" style="display:none">
+  <div class="wrap" id="tCont"></div>
+  <nav class="bnav">
+    <button class="nb on" id="tn0" onclick="tNav(0)"><span class="ni">👥</span><span class="nl">회원</span></button>
+    <button class="nb" id="tn1" onclick="tNav(1)"><span class="ni">📚</span><span class="nl">프로그램</span></button>
+    <button class="nb" id="tn2" onclick="tNav(2)"><span class="ni">💬</span><span class="nl">피드백</span></button>
+    <button class="nb" id="tn3" onclick="tNav(3)"><span class="ni">📊</span><span class="nl">통계</span></button>
+  </nav>
+</div>
+
+<div id="mView" style="display:none">
+  <div class="wrap" id="mCont"></div>
+  <nav class="bnav">
+    <button class="nb on" id="mn0" onclick="mNav(0)"><span class="ni">🏋️</span><span class="nl">운동</span></button>
+    <button class="nb" id="mn1" onclick="mNav(1)"><span class="ni">⚖️</span><span class="nl">체중</span></button>
+    <button class="nb" id="mn2" onclick="mNav(2)"><span class="ni">📊</span><span class="nl">기록</span></button>
+    <button class="nb" id="mn3" onclick="mNav(3)"><span class="ni">💬</span><span class="nl">피드백</span></button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const TRAINER_PW='pt2025!';
+const firebaseConfig={
+  apiKey:"AIzaSyAdoE_1bBCg82j063glD2CVU1UPaXwBIIk",
+  authDomain:"duguenpt.firebaseapp.com",
+  projectId:"duguenpt",
+  storageBucket:"duguenpt.firebasestorage.app",
+  messagingSenderId:"812960924685",
+  appId:"1:812960924685:web:e571378bd635325e600144"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+
+// ══ 운동 DB ══
+const EX_DB={
+  '벤치프레스':{muscle:'가슴 (대흉근)',img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=120&q=70'},
+  '인클라인 덤벨프레스':{muscle:'가슴 상부',img:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=120&q=70'},
+  '케이블 플라이':{muscle:'가슴 (내측)',img:'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=120&q=70'},
+  '트라이셉스 푸시다운':{muscle:'삼두근',img:'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=120&q=70'},
+  '랫풀다운':{muscle:'등 (광배근)',img:'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=120&q=70'},
+  '시티드 로우':{muscle:'등 (중부)',img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=120&q=70'},
+  '원암 덤벨로우':{muscle:'등 (광배근)',img:'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=120&q=70'},
+  '바벨 컬':{muscle:'이두근',img:'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=120&q=70'},
+  '스쿼트':{muscle:'하체 (대퇴사두)',img:'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=120&q=70'},
+  '레그프레스':{muscle:'하체 (대퇴사두)',img:'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=120&q=70'},
+  '레그컬':{muscle:'하체 (햄스트링)',img:'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=120&q=70'},
+  '카프레이즈':{muscle:'종아리',img:'https://images.unsplash.com/photo-1434596922112-19c563067271?w=120&q=70'},
+  '오버헤드프레스':{muscle:'어깨 (전면삼각근)',img:'https://images.unsplash.com/photo-1532029837206-abbe2b7620e3?w=120&q=70'},
+  '사이드 레터럴 레이즈':{muscle:'어깨 (측면삼각근)',img:'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=120&q=70'},
+  '페이스풀':{muscle:'어깨 (후면삼각근)',img:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=120&q=70'},
+  '플랭크':{muscle:'복근 · 코어',img:'https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=120&q=70'},
+  '데드리프트':{muscle:'등 하부 · 햄스트링',img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=120&q=70'},
+  '풀업':{muscle:'등 (광배근)',img:'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=120&q=70'},
+  '딥스':{muscle:'가슴 · 삼두',img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=120&q=70'},
+  '런지':{muscle:'하체 (대퇴사두)',img:'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=120&q=70'},
+  '힙쓰러스트':{muscle:'둔근',img:'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=120&q=70'},
+  '크런치':{muscle:'복근',img:'https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=120&q=70'},
+};
+const ALL_EXERCISES=Object.keys(EX_DB);
+
+// ══ 기본 프로그램 템플릿 ══
+const DEFAULT_PROGRAMS=[
+  {
+    id:'basic_8w',name:'8주 기본 근비대',weeks:8,type:'근비대',level:'중급',
+    phases:[
+      {name:'적응기',weeks:'1~2주',cls:'adapt',sets:3,reps:'15회',desc:'자세 정립'},
+      {name:'볼륨기',weeks:'3~5주',cls:'volume',sets:4,reps:'10~12회',desc:'볼륨 증가'},
+      {name:'강도기',weeks:'6~7주',cls:'intensity',sets:5,reps:'6~8회',desc:'무게 강화'},
+      {name:'디로드',weeks:'8주',cls:'deload',sets:3,reps:'15회(가볍게)',desc:'회복'}
+    ],
+    schedule:[
+      {day:1,name:'월',focus:'가슴 + 삼두',exercises:[{name:'벤치프레스',sets:4,reps:'8~12'},{name:'인클라인 덤벨프레스',sets:3,reps:'10~12'},{name:'케이블 플라이',sets:3,reps:'12~15'},{name:'트라이셉스 푸시다운',sets:3,reps:'12~15'}]},
+      {day:2,name:'화',focus:'등 + 이두',exercises:[{name:'랫풀다운',sets:4,reps:'8~12'},{name:'시티드 로우',sets:4,reps:'10~12'},{name:'원암 덤벨로우',sets:3,reps:'10~12'},{name:'바벨 컬',sets:3,reps:'10~12'}]},
+      {day:3,name:'수',focus:'휴식',exercises:[]},
+      {day:4,name:'목',focus:'하체',exercises:[{name:'스쿼트',sets:4,reps:'8~12'},{name:'레그프레스',sets:4,reps:'10~12'},{name:'레그컬',sets:3,reps:'12~15'},{name:'카프레이즈',sets:4,reps:'15~20'}]},
+      {day:5,name:'금',focus:'어깨 + 복근',exercises:[{name:'오버헤드프레스',sets:4,reps:'8~12'},{name:'사이드 레터럴 레이즈',sets:3,reps:'12~15'},{name:'페이스풀',sets:3,reps:'12~15'},{name:'플랭크',sets:3,reps:'60초'}]},
+      {day:6,name:'토',focus:'휴식',exercises:[]},
+      {day:0,name:'일',focus:'휴식',exercises:[]}
+    ]
+  },
+  {
+    id:'push_pull_4w',name:'4주 푸시풀레그',weeks:4,type:'근비대',level:'중급',
+    phases:[
+      {name:'적응기',weeks:'1~2주',cls:'adapt',sets:3,reps:'12~15회',desc:'패턴 적응'},
+      {name:'볼륨기',weeks:'3~4주',cls:'volume',sets:4,reps:'8~12회',desc:'볼륨 증가'}
+    ],
+    schedule:[
+      {day:1,name:'월',focus:'푸시 (가슴+어깨+삼두)',exercises:[{name:'벤치프레스',sets:4,reps:'8~12'},{name:'오버헤드프레스',sets:3,reps:'10~12'},{name:'인클라인 덤벨프레스',sets:3,reps:'10~12'},{name:'트라이셉스 푸시다운',sets:3,reps:'12~15'}]},
+      {day:2,name:'화',focus:'풀 (등+이두)',exercises:[{name:'풀업',sets:4,reps:'8~10'},{name:'랫풀다운',sets:3,reps:'10~12'},{name:'시티드 로우',sets:3,reps:'10~12'},{name:'바벨 컬',sets:3,reps:'10~12'}]},
+      {day:3,name:'수',focus:'레그 (하체)',exercises:[{name:'스쿼트',sets:4,reps:'8~12'},{name:'레그프레스',sets:3,reps:'10~12'},{name:'런지',sets:3,reps:'12'},{name:'카프레이즈',sets:4,reps:'15~20'}]},
+      {day:4,name:'목',focus:'휴식',exercises:[]},
+      {day:5,name:'금',focus:'풀 (등+이두)',exercises:[{name:'데드리프트',sets:4,reps:'5~8'},{name:'원암 덤벨로우',sets:3,reps:'10~12'},{name:'페이스풀',sets:3,reps:'12~15'},{name:'바벨 컬',sets:3,reps:'10~12'}]},
+      {day:6,name:'토',focus:'푸시 (가슴+어깨+삼두)',exercises:[{name:'인클라인 덤벨프레스',sets:4,reps:'10~12'},{name:'케이블 플라이',sets:3,reps:'12~15'},{name:'사이드 레터럴 레이즈',sets:3,reps:'12~15'},{name:'딥스',sets:3,reps:'10~12'}]},
+      {day:0,name:'일',focus:'휴식',exercises:[]}
+    ]
+  },
+  {
+    id:'diet_6w',name:'6주 다이어트 루틴',weeks:6,type:'다이어트',level:'초급',
+    phases:[
+      {name:'적응기',weeks:'1~2주',cls:'adapt',sets:3,reps:'15~20회',desc:'서킷 적응'},
+      {name:'볼륨기',weeks:'3~4주',cls:'volume',sets:4,reps:'15회',desc:'볼륨 증가'},
+      {name:'강도기',weeks:'5~6주',cls:'intensity',sets:4,reps:'12~15회',desc:'강도 증가'}
+    ],
+    schedule:[
+      {day:1,name:'월',focus:'상체 전체',exercises:[{name:'벤치프레스',sets:3,reps:'15'},{name:'랫풀다운',sets:3,reps:'15'},{name:'오버헤드프레스',sets:3,reps:'15'},{name:'바벨 컬',sets:3,reps:'15'}]},
+      {day:2,name:'화',focus:'하체 전체',exercises:[{name:'스쿼트',sets:4,reps:'15'},{name:'런지',sets:3,reps:'15'},{name:'힙쓰러스트',sets:3,reps:'15'},{name:'카프레이즈',sets:3,reps:'20'}]},
+      {day:3,name:'수',focus:'휴식',exercises:[]},
+      {day:4,name:'목',focus:'상체 전체',exercises:[{name:'인클라인 덤벨프레스',sets:3,reps:'15'},{name:'시티드 로우',sets:3,reps:'15'},{name:'사이드 레터럴 레이즈',sets:3,reps:'15'},{name:'트라이셉스 푸시다운',sets:3,reps:'15'}]},
+      {day:5,name:'금',focus:'하체 + 복근',exercises:[{name:'레그프레스',sets:4,reps:'15'},{name:'레그컬',sets:3,reps:'15'},{name:'플랭크',sets:3,reps:'60초'},{name:'크런치',sets:3,reps:'20'}]},
+      {day:6,name:'토',focus:'휴식',exercises:[]},
+      {day:0,name:'일',focus:'휴식',exercises:[]}
+    ]
+  }
+];
+
+let curMode=null,curMember=null,editProgram=null;
+
+// ══ 헬퍼 ══
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtDate(s){if(!s)return'';const d=new Date(s);return`${d.getMonth()+1}/${d.getDate()}`;}
+function weekNum(start){const d=Math.floor((new Date()-new Date(start))/(7*86400000));return Math.min(d+1,12);}
+function getPhase(prog,w){
+  if(!prog||!prog.phases)return{name:'볼륨기',cls:'volume',reps:'10~12회',sets:4,desc:''};
+  let acc=0;
+  for(const ph of prog.phases){
+    const wks=ph.weeks.includes('~')?parseInt(ph.weeks.split('~')[1].replace('주','')):parseInt(ph.weeks.replace('주',''));
+    if(w<=wks)return ph;
+    acc=wks;
+  }
+  return prog.phases[prog.phases.length-1];
+}
+function tog(el){el.classList.toggle('on');}
+
+// ══ 입장 ══
+function selMode(m){
+  document.getElementById('tLoginBox').style.display='none';
+  document.getElementById('mLoginBox').style.display='none';
+  if(m==='trainer'){document.getElementById('tLoginBox').style.display='block';setTimeout(()=>document.getElementById('tPw').focus(),100);}
+  else{document.getElementById('mLoginBox').style.display='block';setTimeout(()=>document.getElementById('mCode').focus(),100);}
+}
+function tLogin(){
+  if(document.getElementById('tPw').value===TRAINER_PW){
+    curMode='trainer';
+    document.getElementById('landView').style.display='none';
+    document.getElementById('tView').style.display='block';
+    const b=document.getElementById('badge');b.style.display='block';b.className='mode-badge trainer';b.textContent='트레이너';
+    tNav(0);
+  }else{document.getElementById('tErr').style.display='block';document.getElementById('tPw').value='';}
+}
+async function mLogin(){
+  const code=document.getElementById('mCode').value.toUpperCase().trim();
+  if(!code){toast('코드를 입력해주세요');return;}
+  try{
+    const snap=await db.collection('members').where('code','==',code).get();
+    if(snap.empty){document.getElementById('mErr').style.display='block';return;}
+    curMember={id:snap.docs[0].id,...snap.docs[0].data()};
+    curMode='member';
+    document.getElementById('landView').style.display='none';
+    document.getElementById('mView').style.display='block';
+    const b=document.getElementById('badge');b.style.display='block';b.className='mode-badge member';b.textContent=curMember.name+'님';
+    mNav(0);
+  }catch(e){document.getElementById('mErr').style.display='block';}
+}
+
+// ══ 트레이너 네비 ══
+function tNav(n){
+  for(let i=0;i<4;i++)document.getElementById('tn'+i).classList.toggle('on',i===n);
+  if(n===0)tMembers();
+  else if(n===1)tLibrary();
+  else if(n===2)tFeedback();
+  else tStats();
+}
+
+// ── 트레이너: 회원 ──
+async function tMembers(){
+  const c=document.getElementById('tCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  const snap=await db.collection('members').get();
+  const members=snap.docs.map(d=>({id:d.id,...d.data()}));
+  let html=`<div class="sec-lbl">전체 회원 (${members.length}명)</div>`;
+  for(const m of members){
+    const w=m.startDate?weekNum(m.startDate):1;
+    const progData=m.assignedProgramId?DEFAULT_PROGRAMS.find(p=>p.id===m.assignedProgramId)||DEFAULT_PROGRAMS[0]:DEFAULT_PROGRAMS[0];
+    const ph=getPhase(progData,w);
+    const fbSnap=await db.collection('feedbacks').where('memberId','==',m.id).where('status','==','pending').get();
+    html+=`<div class="mem-card fade" onclick="tMemberDetail('${m.id}')">
+      <div class="mem-av">${m.name.charAt(0)}</div>
+      <div class="mem-info">
+        <div class="mem-name">${m.name} <span style="font-size:11px;color:var(--hint);font-weight:400">${m.code}</span></div>
+        <div class="mem-sub">${w}주차 · <span class="phase-tag ${ph.cls}" style="font-size:10px;padding:1px 6px">${ph.name}</span> · ${progData.name}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        ${fbSnap.size>0?`<span class="notif">${fbSnap.size}</span>`:''}
+      </div>
+    </div>`;
+  }
+  html+=`<button class="btn btn-blue" onclick="tAddMember()">+ 회원 추가</button>`;
+  c.innerHTML=html;
+}
+
+function tAddMember(){
+  const c=document.getElementById('tCont');
+  const progOptions=DEFAULT_PROGRAMS.map(p=>`<option value="${p.id}">${p.name} (${p.weeks}주)</option>`).join('');
+  c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <button onclick="tNav(0)" style="background:none;border:none;font-size:22px;cursor:pointer">←</button>
+    <div style="font-size:15px;font-weight:700">새 회원 추가</div>
+  </div>
+  <div class="card fade">
+    <div class="field"><label>이름</label><input id="nName" placeholder="홍길동"/></div>
+    <div class="g2">
+      <div class="field"><label>회원 코드 (4자리)</label><input id="nCode" placeholder="K7A2" maxlength="4" style="text-transform:uppercase;letter-spacing:3px;text-align:center;font-size:16px" oninput="this.value=this.value.toUpperCase()"/></div>
+      <div class="field"><label>프로그램 시작일</label><input type="date" id="nStart" value="${today()}"/></div>
+    </div>
+    <div class="field"><label>목표</label>
+      <select id="nGoal"><option value="감량">체지방 감량</option><option value="근육">근육 증가</option><option value="유지">체중 유지</option><option value="벌크">벌크업</option></select>
+    </div>
+    <div class="field"><label>할당 프로그램</label><select id="nProg">${progOptions}</select></div>
+    <div class="g2">
+      <div class="field"><label>현재 체중 (kg)</label><input type="number" id="nWt" placeholder="70"/></div>
+      <div class="field"><label>목표 체중 (kg)</label><input type="number" id="nTgt" placeholder="65"/></div>
+    </div>
+    <div class="field"><label>약점 부위</label>
+      <div class="chips" id="weakC">
+        <div class="chip" onclick="tog(this)">가슴</div><div class="chip" onclick="tog(this)">등</div>
+        <div class="chip" onclick="tog(this)">하체</div><div class="chip" onclick="tog(this)">어깨</div>
+        <div class="chip" onclick="tog(this)">팔</div><div class="chip" onclick="tog(this)">복근</div>
+      </div>
+    </div>
+    <button class="btn btn-blue" onclick="saveMember()">저장</button>
+    <button class="btn btn-gray" onclick="tNav(0)">취소</button>
+  </div>`;
+}
+
+async function saveMember(){
+  const name=document.getElementById('nName').value.trim();
+  const code=document.getElementById('nCode').value.toUpperCase().trim();
+  if(!name||code.length!==4){toast('이름과 4자리 코드를 입력해주세요');return;}
+  const weakParts=[...document.querySelectorAll('#weakC .chip.on')].map(c=>c.textContent);
+  await db.collection('members').add({name,code,goal:document.getElementById('nGoal').value,startDate:document.getElementById('nStart').value,assignedProgramId:document.getElementById('nProg').value,currentWeight:parseFloat(document.getElementById('nWt').value)||0,targetWeight:parseFloat(document.getElementById('nTgt').value)||0,weakParts,createdAt:today()});
+  toast(`${name}님 추가 완료`);tNav(0);
+}
+
+async function tMemberDetail(id){
+  const c=document.getElementById('tCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  const doc=await db.collection('members').doc(id).get();
+  const m={id:doc.id,...doc.data()};
+  const w=m.startDate?weekNum(m.startDate):1;
+  const progData=m.assignedProgramId?DEFAULT_PROGRAMS.find(p=>p.id===m.assignedProgramId)||DEFAULT_PROGRAMS[0]:DEFAULT_PROGRAMS[0];
+  const ph=getPhase(progData,w);
+  const wtSnap=await db.collection('bodyweight').where('memberId','==',id).get();
+  const wtData=wtSnap.docs.map(d=>d.data()).sort((a,b)=>a.date.localeCompare(b.date)).slice(-14);
+  let chartHtml='<div class="empty">체중 기록 없음</div>';
+  if(wtData.length>1){
+    const maxW=Math.max(...wtData.map(d=>d.weight)),minW=Math.min(...wtData.map(d=>d.weight)),rng=maxW-minW||1;
+    chartHtml=`<div class="chart-wrap"><div class="chart-inner">${wtData.map(d=>{const h=Math.max(6,Math.round(((d.weight-minW)/rng)*80+10));return`<div class="bar-col"><div class="bar-val">${d.weight}</div><div class="bar" style="height:${h}px;background:var(--blue)"></div><div class="bar-lbl">${fmtDate(d.date)}</div></div>`;}).join('')}</div></div>`;
+  }
+  const progOptions=DEFAULT_PROGRAMS.map(p=>`<option value="${p.id}" ${p.id===m.assignedProgramId?'selected':''}>${p.name} (${p.weeks}주)</option>`).join('');
+  c.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <button onclick="tNav(0)" style="background:none;border:none;font-size:22px;cursor:pointer">←</button>
+    <div style="font-size:15px;font-weight:700">${m.name}님</div>
+    <span style="font-size:11px;color:var(--hint)">${m.code}</span>
+  </div>
+  <div class="card fade">
+    <div class="ctitle">체중 추이</div>
+    ${chartHtml}
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--sec);margin-top:8px">
+      <span>목표 <strong>${m.targetWeight||'-'}kg</strong></span>
+      <span>현재 <strong>${wtData.length?wtData[wtData.length-1].weight:m.currentWeight||'-'}kg</strong></span>
+    </div>
+  </div>
+  <div class="card fade">
+    <div class="ctitle">주기화 현황</div>
+    <div class="phase-bar">${Array.from({length:progData.weeks},(_,i)=>{const p=getPhase(progData,i+1);return`<div class="phase-blk ${i<w?p.cls:'off'}"></div>`;}).join('')}</div>
+    <span class="phase-tag ${ph.cls}">${w}주차 · ${ph.name}</span>
+    <div style="font-size:11px;color:var(--sec);margin-top:5px">${ph.desc||''} · 목표 ${ph.reps} × ${ph.sets}세트</div>
+  </div>
+  <div class="card fade">
+    <div class="ctitle">할당 프로그램 변경</div>
+    <div class="field"><select id="changeProg">${progOptions}</select></div>
+    <button class="btn btn-amber" onclick="changeProgram('${id}')">프로그램 변경 저장</button>
+  </div>
+  <button class="btn btn-blue" onclick="tEditMemberProgram('${id}')">운동 종목 직접 수정</button>
+  <button class="btn btn-gray" onclick="tNav(0)" style="margin-top:6px">← 목록</button>`;
+}
+
+async function changeProgram(memberId){
+  const newProgId=document.getElementById('changeProg').value;
+  await db.collection('members').doc(memberId).update({assignedProgramId:newProgId,customSchedule:null});
+  toast('프로그램 변경 완료');tMemberDetail(memberId);
+}
+
+async function tEditMemberProgram(id){
+  const c=document.getElementById('tCont');
+  const doc=await db.collection('members').doc(id).get();
+  const m={id:doc.id,...doc.data()};
+  const progData=m.assignedProgramId?DEFAULT_PROGRAMS.find(p=>p.id===m.assignedProgramId)||DEFAULT_PROGRAMS[0]:DEFAULT_PROGRAMS[0];
+  const schedule=m.customSchedule||progData.schedule;
+  let html=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <button onclick="tMemberDetail('${id}')" style="background:none;border:none;font-size:22px;cursor:pointer">←</button>
+    <div style="font-size:14px;font-weight:700">${m.name}님 운동 수정</div>
+  </div>
+  <div style="font-size:12px;color:var(--sec);margin-bottom:10px;background:var(--amber-bg);padding:8px 12px;border-radius:var(--r-sm)">기본 프로그램: ${progData.name} · 아래에서 세트수/종목 개인화 가능</div>`;
+  for(const day of schedule){
+    if(!day.exercises.length)continue;
+    html+=`<div class="card fade"><div class="ctitle">${day.name}요일 — ${day.focus}</div>`;
+    day.exercises.forEach((ex,i)=>{
+      html+=`<div class="edit-ex-row">
+        <div class="edit-ex-name">${ex.name}<div style="font-size:11px;color:var(--sec)">${ex.reps}</div></div>
+        <input class="mini-inp" type="number" value="${ex.sets}" min="1" max="8" id="es_${day.day}_${i}" title="세트수"/>
+        <span style="font-size:11px;color:var(--sec)">세트</span>
+        <button style="background:none;border:none;color:var(--red-t);cursor:pointer;font-size:16px;padding:0 4px" onclick="removeExercise('${id}',${day.day},${i})">×</button>
+      </div>`;
+    });
+    html+=`<button class="btn btn-gray btn-sm" style="margin-top:8px;width:auto;padding:6px 12px" onclick="addExerciseToDay('${id}',${day.day})">+ 운동 추가</button>`;
+    html+=`</div>`;
+  }
+  html+=`<button class="btn btn-blue" onclick="saveCustomSchedule('${id}')">저장</button>
+    <button class="btn btn-gray" onclick="tMemberDetail('${id}')" style="margin-top:6px">취소</button>`;
+  c.innerHTML=html;
+  window._editSchedule=JSON.parse(JSON.stringify(schedule));
+  window._editMemberId=id;
+}
+
+function addExerciseToDay(memberId,dayNum){
+  const exOptions=ALL_EXERCISES.map(e=>`<option value="${e}">${e}</option>`).join('');
+  const existing=document.getElementById('addExModal');
+  if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='addExModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end';
+  modal.innerHTML=`<div style="background:var(--card);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:20px;width:100%;max-width:480px;margin:0 auto">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px">운동 추가</div>
+    <div class="field"><label>운동 선택</label><select id="addExSelect">${exOptions}</select></div>
+    <div class="g2">
+      <div class="field"><label>세트수</label><input type="number" id="addExSets" value="3" min="1" max="8"/></div>
+      <div class="field"><label>횟수</label><input id="addExReps" value="10~12"/></div>
+    </div>
+    <button class="btn btn-blue" onclick="confirmAddEx('${memberId}',${dayNum})">추가</button>
+    <button class="btn btn-gray" onclick="document.getElementById('addExModal').remove()">취소</button>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function confirmAddEx(memberId,dayNum){
+  const name=document.getElementById('addExSelect').value;
+  const sets=parseInt(document.getElementById('addExSets').value)||3;
+  const reps=document.getElementById('addExReps').value||'10~12';
+  const sched=window._editSchedule;
+  const day=sched.find(d=>d.day===dayNum);
+  if(day){day.exercises.push({name,sets,reps});}
+  document.getElementById('addExModal').remove();
+  tEditMemberProgram(memberId);
+}
+
+function removeExercise(memberId,dayNum,exIdx){
+  const sched=window._editSchedule;
+  const day=sched.find(d=>d.day===dayNum);
+  if(day)day.exercises.splice(exIdx,1);
+  tEditMemberProgram(memberId);
+}
+
+async function saveCustomSchedule(memberId){
+  const sched=window._editSchedule;
+  // 세트수 업데이트
+  for(const day of sched){
+    day.exercises.forEach((ex,i)=>{
+      const el=document.getElementById(`es_${day.day}_${i}`);
+      if(el)ex.sets=parseInt(el.value)||ex.sets;
+    });
+  }
+  await db.collection('members').doc(memberId).update({customSchedule:sched});
+  toast('운동 프로그램 저장 완료');
+  tMemberDetail(memberId);
+}
+
+// ── 트레이너: 프로그램 라이브러리 ──
+async function tLibrary(){
+  const c=document.getElementById('tCont');
+  let html=`<div class="sec-lbl">프로그램 라이브러리</div>`;
+  DEFAULT_PROGRAMS.forEach(p=>{
+    html+=`<div class="prog-card fade">
+      <div class="prog-header">
+        <div>
+          <div class="prog-name">${p.name}</div>
+          <div class="prog-meta">${p.weeks}주 · ${p.type} · ${p.level}</div>
+        </div>
+        <div class="prog-actions">
+          <button class="btn-sm btn-blue" onclick="tViewProgram('${p.id}')">보기</button>
+        </div>
+      </div>
+      <div class="prog-week-grid">
+        ${p.phases.map(ph=>`<div class="pw-blk ${ph.cls}"><div>${ph.weeks}</div><div>${ph.name}</div><div style="font-weight:400;margin-top:1px">${ph.reps}</div></div>`).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--sec)">
+        ${p.schedule.filter(d=>d.exercises.length).map(d=>`${d.name}: ${d.focus}`).join(' · ')}
+      </div>
+    </div>`;
+  });
+  html+=`<button class="btn btn-blue" onclick="tCreateProgram()">+ 새 프로그램 만들기</button>`;
+  c.innerHTML=html;
+}
+
+function tViewProgram(progId){
+  const prog=DEFAULT_PROGRAMS.find(p=>p.id===progId);
+  if(!prog)return;
+  const c=document.getElementById('tCont');
+  let html=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <button onclick="tLibrary()" style="background:none;border:none;font-size:22px;cursor:pointer">←</button>
+    <div style="font-size:15px;font-weight:700">${prog.name}</div>
+  </div>
+  <div class="card fade">
+    <div class="ctitle">주기화 블록</div>
+    <div class="prog-week-grid">${prog.phases.map(ph=>`<div class="pw-blk ${ph.cls}"><div style="font-size:12px">${ph.weeks}</div><div>${ph.name}</div><div style="font-weight:400">${ph.reps}×${ph.sets}세트</div><div style="font-weight:400;font-size:10px">${ph.desc}</div></div>`).join('')}</div>
+  </div>
+  <div class="sec-lbl">요일별 구성</div>`;
+  prog.schedule.forEach(day=>{
+    if(!day.exercises.length){html+=`<div class="card fade" style="padding:10px 14px"><div style="font-size:13px;font-weight:600;color:var(--sec)">${day.name}요일 · 휴식</div></div>`;return;}
+    html+=`<div class="card fade">
+      <div class="ctitle" style="margin-bottom:6px">${day.name}요일 — ${day.focus}</div>
+      ${day.exercises.map(ex=>{
+        const info=EX_DB[ex.name]||{muscle:'전신',img:''};
+        return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          ${info.img?`<img src="${info.img}" style="width:40px;height:40px;border-radius:var(--r-sm);object-fit:cover;flex-shrink:0" onerror="this.style.display='none'"/>`:''} 
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">${ex.name}</div><div style="font-size:11px;color:var(--sec)">${info.muscle} · ${ex.sets}세트 × ${ex.reps}</div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  c.innerHTML=html;
+}
+
+function tCreateProgram(){
+  toast('커스텀 프로그램 생성 기능은 다음 업데이트에서 추가됩니다');
+}
+
+// ── 트레이너: 피드백 ──
+async function tFeedback(){
+  const c=document.getElementById('tCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const snap=await db.collection('feedbacks').get();
+    const fbs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+    const pending=fbs.filter(f=>f.status==='pending');
+    let html=`<div class="sec-lbl">미답변 ${pending.length}건 · 전체 ${fbs.length}건</div>`;
+    if(!fbs.length){html+=`<div class="empty">피드백 요청이 없습니다</div>`;}
+    fbs.forEach(fb=>{
+      html+=`<div class="fb-card fade">
+        <div class="fb-hdr">
+          <div style="font-size:13px;font-weight:700">${fb.memberName||'회원'} <span style="font-weight:400;color:var(--hint);font-size:11px">· ${fb.bodyPart||''}</span></div>
+          <div style="display:flex;gap:5px;align-items:center">
+            <span class="badge ${fb.status==='pending'?'badge-pend':'badge-done'}">${fb.status==='pending'?'미답변':'완료'}</span>
+            <span style="font-size:11px;color:var(--hint)">${fmtDate(fb.createdAt)}</span>
+          </div>
+        </div>
+        <div style="font-size:13px;line-height:1.6;margin-bottom:6px">${fb.content}</div>
+        ${fb.reply?`<div class="fb-reply">트레이너: ${fb.reply}</div>`:''}
+        ${fb.status==='pending'?`<textarea id="rep_${fb.id}" placeholder="답변 입력..." style="width:100%;padding:9px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:13px;resize:none;height:72px;font-family:'Noto Sans KR',sans-serif;background:var(--bg);margin-top:6px"></textarea>
+        <button class="btn btn-blue" style="margin-top:5px" onclick="sendReply('${fb.id}')">답변 전송</button>`:''}
+      </div>`;
+    });
+    c.innerHTML=html;
+  }catch(e){c.innerHTML=`<div class="empty">오류: ${e.message}</div>`;}
+}
+
+async function sendReply(id){
+  const rep=document.getElementById('rep_'+id).value.trim();
+  if(!rep){toast('답변을 입력해주세요');return;}
+  await db.collection('feedbacks').doc(id).update({reply:rep,status:'done',repliedAt:today()});
+  toast('답변 전송 완료');tFeedback();
+}
+
+async function tStats(){
+  const c=document.getElementById('tCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  const mSnap=await db.collection('members').get();
+  const wSnap=await db.collection('workouts').where('date','==',today()).get();
+  const active=new Set(wSnap.docs.map(d=>d.data().memberId)).size;
+  c.innerHTML=`<div class="sec-lbl">오늘 현황</div>
+  <div class="g2">
+    <div class="card fade" style="text-align:center"><div style="font-size:30px;font-weight:700;color:var(--blue)">${mSnap.size}</div><div style="font-size:12px;color:var(--sec)">전체 회원</div></div>
+    <div class="card fade" style="text-align:center"><div style="font-size:30px;font-weight:700;color:var(--green)">${active}</div><div style="font-size:12px;color:var(--sec)">오늘 운동</div></div>
+  </div>
+  <div class="card fade">
+    <div class="ctitle">회원 코드 안내</div>
+    <div style="font-size:13px;color:var(--sec);line-height:1.7">회원에게 아래 주소와 코드를 알려주세요<br><strong style="color:var(--blue);word-break:break-all">${window.location.href}</strong></div>
+  </div>`;
+}
+
+// ══ 회원 네비 ══
+function mNav(n){
+  for(let i=0;i<4;i++)document.getElementById('mn'+i).classList.toggle('on',i===n);
+  if(n===0)mWorkout();
+  else if(n===1)mWeight();
+  else if(n===2)mHistory();
+  else mFeedbackView();
+}
+
+// ── 회원: 운동 ──
+async function mWorkout(){
+  const c=document.getElementById('mCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const w=curMember.startDate?weekNum(curMember.startDate):1;
+    const memberDoc=await db.collection('members').doc(curMember.id).get();
+    const memberData=memberDoc.data();
+    const progData=memberData.assignedProgramId?DEFAULT_PROGRAMS.find(p=>p.id===memberData.assignedProgramId)||DEFAULT_PROGRAMS[0]:DEFAULT_PROGRAMS[0];
+    const schedule=memberData.customSchedule||progData.schedule;
+    const ph=getPhase(progData,w);
+    const todayDay=new Date().getDay();
+    const sched=schedule.find(s=>s.day===todayDay)||{focus:'휴식',exercises:[]};
+    const existSnap=await db.collection('workouts').where('memberId','==',curMember.id).where('date','==',today()).get();
+    const existMap={};
+    existSnap.docs.forEach(d=>{const data=d.data();existMap[data.exerciseName]=data;});
+    const prevDate=new Date();prevDate.setDate(prevDate.getDate()-7);
+    const prevStr=prevDate.toISOString().split('T')[0];
+    const prevSnap=await db.collection('workouts').where('memberId','==',curMember.id).where('date','==',prevStr).get();
+    const prevMap={};
+    prevSnap.docs.forEach(d=>{const data=d.data();prevMap[data.exerciseName]=data;});
+
+    let html=`<div class="card fade" style="padding:10px 12px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:11px;color:var(--sec)">${today()} ${['일','월','화','수','목','금','토'][todayDay]}요일</div>
+          <div style="font-size:15px;font-weight:700">${sched.focus}</div>
+          <div style="font-size:11px;color:var(--sec);margin-top:2px">${progData.name}</div>
+        </div>
+        <span class="phase-tag ${ph.cls}">${w}주차<br/>${ph.name}</span>
+      </div>
+    </div>
+    <button class="btn btn-gray" style="margin-bottom:10px;font-size:12px;padding:8px" onclick="showFullProgram()">📋 전체 프로그램 보기</button>
+    <div id="fullProgWrap" style="display:none"></div>`;
+
+    if(!sched.exercises.length){
+      html+=`<div class="card fade" style="text-align:center;padding:28px">
+        <div style="font-size:36px;margin-bottom:8px">🛌</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">오늘은 휴식일</div>
+        <div style="font-size:13px;color:var(--sec)">충분한 수면과 단백질로 회복하세요</div>
+      </div>`;
+    } else {
+      sched.exercises.forEach((ex,ei)=>{
+        const exInfo=EX_DB[ex.name]||{muscle:'전신',img:''};
+        const exist=existMap[ex.name];
+        const prev=prevMap[ex.name];
+        const initSets=exist?exist.sets:Array.from({length:ex.sets},()=>({weight:'',reps:'',done:false}));
+        const prevText=prev&&prev.sets&&prev.sets.length?`지난주 ${prev.sets[0]?.weight||'-'}kg×${prev.sets[0]?.reps||'-'}회`:'';
+        const exKey=ex.name.replace(/[\s··]+/g,'_');
+        html+=`<div class="ex-card fade">
+          <div class="ex-top">
+            ${exInfo.img?`<img src="${exInfo.img}" class="ex-img" onerror="this.style.display='none'"/>`:` <div class="ex-img" style="display:flex;align-items:center;justify-content:center;font-size:20px">💪</div>`}
+            <div class="ex-info">
+              <div class="ex-name">${ex.name}</div>
+              <div class="ex-target">타겟: ${exInfo.muscle}</div>
+              ${prevText?`<div class="ex-prev">${prevText}</div>`:''}
+            </div>
+            <span class="ex-phase">${ph.reps}×${ph.sets}</span>
+          </div>
+          <table class="sets-table">
+            <thead><tr><th>세트</th><th>무게(kg)</th><th>횟수</th><th>완료</th><th>삭제</th></tr></thead>
+            <tbody id="sb_${exKey}">
+              ${initSets.map((s,i)=>`<tr id="sr_${exKey}_${i}">
+                <td style="font-size:12px;color:var(--sec);font-weight:600">${i+1}</td>
+                <td><input class="set-inp" type="number" placeholder="-" value="${s.weight||''}" id="w_${exKey}_${i}"/></td>
+                <td><input class="set-inp" type="number" placeholder="-" value="${s.reps||''}" id="r_${exKey}_${i}"/></td>
+                <td><div class="set-chk ${s.done?'done':''}" id="ck_${exKey}_${i}" onclick="togChk('${exKey}',${i})">${s.done?'✓':''}</div></td>
+                <td><button class="set-del" onclick="delSet('${exKey}',${i})">×</button></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+          <button class="add-set-btn" onclick="addSet('${exKey}')">+ 세트 추가</button>
+        </div>`;
+      });
+      html+=`<button class="btn btn-green" onclick="saveWorkout()">운동 기록 저장 💾</button>`;
+    }
+    c.innerHTML=html;
+    window._todaySchedule=sched;
+    window._curProgData=progData;
+    window._curWeek=w;
+  }catch(e){c.innerHTML=`<div class="empty">오류: ${e.message}</div>`;}
+}
+
+async function showFullProgram(){
+  const wrap=document.getElementById('fullProgWrap');
+  if(wrap.style.display==='block'){wrap.style.display='none';return;}
+  const memberDoc=await db.collection('members').doc(curMember.id).get();
+  const memberData=memberDoc.data();
+  const progData=memberData.assignedProgramId?DEFAULT_PROGRAMS.find(p=>p.id===memberData.assignedProgramId)||DEFAULT_PROGRAMS[0]:DEFAULT_PROGRAMS[0];
+  const schedule=memberData.customSchedule||progData.schedule;
+  const w=window._curWeek||1;
+  const todayDay=new Date().getDay();
+
+  let html=`<div class="full-prog-wrap fade">
+    <div class="ctitle" style="padding:12px 14px 0;margin-bottom:8px">${progData.name} · ${w}주차</div>
+    <div style="padding:0 14px 10px">
+      <div class="phase-bar">${Array.from({length:progData.weeks},(_,i)=>{const p=getPhase(progData,i+1);return`<div class="phase-blk ${i<w?p.cls:'off'}"></div>`;}).join('')}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        ${progData.phases.map(ph=>`<span class="phase-tag ${ph.cls}" style="font-size:10px">${ph.weeks} ${ph.name}</span>`).join('')}
+      </div>
+    </div>
+    <div style="overflow-x:auto"><div style="display:flex;gap:0;min-width:max-content">
+    ${schedule.map(day=>`<div style="min-width:110px;border-right:1px solid var(--border);padding:10px;">
+      <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:${day.day===todayDay?'var(--blue-t)':'var(--text)'}">${day.name}요일 ${day.day===todayDay?'🔵':''}</div>
+      <div style="font-size:11px;color:var(--amber-t);font-weight:600;margin-bottom:5px">${day.focus}</div>
+      ${day.exercises.map(ex=>`<div style="font-size:11px;color:var(--sec);padding:2px 0;border-bottom:1px solid var(--border)">${ex.name}<br/><span style="color:var(--hint)">${ex.sets}×${ex.reps}</span></div>`).join('')||'<div style="font-size:11px;color:var(--hint)">휴식</div>'}
+    </div>`).join('')}
+    </div></div>
+  </div>`;
+  wrap.innerHTML=html;
+  wrap.style.display='block';
+}
+
+function togChk(key,i){const el=document.getElementById(`ck_${key}_${i}`);const d=!el.classList.contains('done');el.classList.toggle('done',d);el.textContent=d?'✓':'';}
+function addSet(key){
+  const tbody=document.getElementById('sb_'+key);const cnt=tbody.querySelectorAll('tr').length;
+  const tr=document.createElement('tr');tr.id=`sr_${key}_${cnt}`;
+  tr.innerHTML=`<td style="font-size:12px;color:var(--sec);font-weight:600">${cnt+1}</td>
+    <td><input class="set-inp" type="number" placeholder="-" id="w_${key}_${cnt}"/></td>
+    <td><input class="set-inp" type="number" placeholder="-" id="r_${key}_${cnt}"/></td>
+    <td><div class="set-chk" id="ck_${key}_${cnt}" onclick="togChk('${key}',${cnt})"></div></td>
+    <td><button class="set-del" onclick="delSet('${key}',${cnt})">×</button></td>`;
+  tbody.appendChild(tr);
+}
+function delSet(key,idx){
+  const row=document.getElementById(`sr_${key}_${idx}`);
+  if(!row)return;
+  const tbody=row.parentNode;row.remove();
+  tbody.querySelectorAll('tr').forEach((tr,i)=>{tr.cells[0].textContent=i+1;});
+}
+
+async function saveWorkout(){
+  const sched=window._todaySchedule;
+  const w=window._curWeek||1;
+  if(!sched||!sched.exercises.length)return;
+  const batch=db.batch();
+  for(const ex of sched.exercises){
+    const key=ex.name.replace(/[\s··]+/g,'_');
+    const rows=document.querySelectorAll(`[id^="sr_${key}_"]`);
+    const sets=[];
+    rows.forEach((_,i)=>{
+      const wEl=document.getElementById(`w_${key}_${i}`);
+      const rEl=document.getElementById(`r_${key}_${i}`);
+      const cEl=document.getElementById(`ck_${key}_${i}`);
+      if(wEl&&rEl&&(wEl.value||rEl.value))sets.push({weight:parseFloat(wEl.value)||0,reps:parseInt(rEl.value)||0,done:cEl?cEl.classList.contains('done'):false});
+    });
+    if(!sets.length)continue;
+    const existing=await db.collection('workouts').where('memberId','==',curMember.id).where('date','==',today()).where('exerciseName','==',ex.name).get();
+    if(existing.empty){const ref=db.collection('workouts').doc();batch.set(ref,{memberId:curMember.id,memberName:curMember.name,date:today(),week:w,exerciseName:ex.name,sets,savedAt:new Date().toISOString()});}
+    else{batch.update(existing.docs[0].ref,{sets,savedAt:new Date().toISOString()});}
+  }
+  await batch.commit();toast('운동 기록 저장 완료 ✓');
+}
+
+// ── 회원: 체중 ──
+async function mWeight(){
+  const c=document.getElementById('mCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const snap=await db.collection('bodyweight').where('memberId','==',curMember.id).get();
+    const recs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.date.localeCompare(b.date));
+    const latest=recs[recs.length-1],prev=recs[recs.length-2];
+    const diff=latest&&prev?(latest.weight-prev.weight).toFixed(1):null;
+    const diffCls=diff>0?'up':diff<0?'dn':'same';
+    const diffTxt=diff>0?`+${diff}kg ↑`:diff<0?`${diff}kg ↓`:'변화 없음';
+    let chartHtml='<div class="empty">기록 2개 이상 필요</div>';
+    const last14=recs.slice(-14);
+    if(last14.length>1){
+      const maxW=Math.max(...last14.map(d=>d.weight)),minW=Math.min(...last14.map(d=>d.weight)),rng=maxW-minW||1;
+      chartHtml=`<div class="chart-wrap"><div class="chart-inner">${last14.map(d=>{const h=Math.max(6,Math.round(((d.weight-minW)/rng)*80+10));return`<div class="bar-col"><div class="bar-val">${d.weight}</div><div class="bar" style="height:${h}px;background:var(--blue)"></div><div class="bar-lbl">${fmtDate(d.date)}</div></div>`;}).join('')}</div></div>`;
+    }
+    c.innerHTML=`<div class="card fade">
+      <div class="wt-big">
+        <span class="wt-num">${latest?.weight||curMember.currentWeight||'-'}</span><span class="wt-unit">kg</span>
+        ${diff!==null?`<div class="wt-diff ${diffCls}">${diffTxt} (전날 대비)</div>`:''}
+        <div style="font-size:11px;color:var(--hint);margin-top:4px">목표 ${curMember.targetWeight||'-'}kg${latest&&curMember.targetWeight?` · ${Math.abs(latest.weight-curMember.targetWeight).toFixed(1)}kg 남음`:''}</div>
+      </div>${chartHtml}
+    </div>
+    <div class="card fade">
+      <div class="ctitle">오늘 체중 입력</div>
+      <div class="field"><input type="number" id="wtInp" step="0.1" placeholder="${latest?.weight||'70.0'}" style="font-size:22px;text-align:center;padding:12px"/></div>
+      <button class="btn btn-green" onclick="saveWeight()">저장</button>
+    </div>
+    <div class="card fade">
+      <div class="ctitle">최근 기록</div>
+      ${recs.slice(-7).reverse().map(r=>`<div class="cmp-row"><span class="cmp-name">${fmtDate(r.date)}</span><span style="font-size:13px;font-weight:700">${r.weight}kg</span></div>`).join('')||'<div class="empty">기록 없음</div>'}
+    </div>`;
+  }catch(e){c.innerHTML=`<div class="empty">오류: ${e.message}</div>`;}
+}
+
+async function saveWeight(){
+  const w=parseFloat(document.getElementById('wtInp').value);
+  if(!w||w<20||w>300){toast('올바른 체중을 입력해주세요');return;}
+  const existing=await db.collection('bodyweight').where('memberId','==',curMember.id).where('date','==',today()).get();
+  if(existing.empty)await db.collection('bodyweight').add({memberId:curMember.id,memberName:curMember.name,date:today(),weight:w});
+  else await existing.docs[0].ref.update({weight:w});
+  toast(`${w}kg 저장 완료 ✓`);mWeight();
+}
+
+// ── 회원: 기록 ──
+async function mHistory(){
+  const c=document.getElementById('mCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const snap=await db.collection('workouts').where('memberId','==',curMember.id).get();
+    const all=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.date.localeCompare(a.date));
+    const prevDate=new Date();prevDate.setDate(prevDate.getDate()-7);
+    const prevStr=prevDate.toISOString().split('T')[0];
+    const todayLogs=all.filter(l=>l.date===today());
+    const prevLogs=all.filter(l=>l.date===prevStr);
+    const prevMap={};prevLogs.forEach(l=>{prevMap[l.exerciseName]=l;});
+    let html='';
+    if(todayLogs.length){
+      html+=`<div class="sec-lbl">오늘 vs 지난주 비교</div><div class="card fade">`;
+      todayLogs.forEach(log=>{
+        const prev=prevMap[log.exerciseName];
+        const currMax=Math.max(...(log.sets||[]).map(s=>s.weight||0));
+        const prevMax=prev?Math.max(...(prev.sets||[]).map(s=>s.weight||0)):0;
+        const currVol=(log.sets||[]).reduce((a,s)=>a+(s.weight||0)*(s.reps||0),0);
+        const prevVol=prev?(prev.sets||[]).reduce((a,s)=>a+(s.weight||0)*(s.reps||0),0):0;
+        const diff=prevVol>0?Math.round(((currVol-prevVol)/prevVol)*100):null;
+        html+=`<div class="cmp-row">
+          <div style="flex:1"><div class="cmp-name">${log.exerciseName}</div><div style="font-size:11px;color:var(--hint)">${(log.sets||[]).length}세트 · 최고 ${currMax}kg</div></div>
+          <div style="text-align:right">${prev?`<div style="font-size:11px;color:var(--hint)">지난주 ${prevMax}kg</div>`:''}${diff!==null?`<span class="cmp-diff ${diff>0?'up':diff<0?'dn':'eq'}">${diff>0?'+':''}${diff}%</span>`:''}</div>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+    const byDate={};all.forEach(l=>{if(!byDate[l.date])byDate[l.date]=[];byDate[l.date].push(l);});
+    html+=`<div class="sec-lbl">최근 운동 기록</div>`;
+    Object.entries(byDate).slice(0,7).forEach(([date,logs])=>{
+      html+=`<div class="card fade"><div class="ctitle" style="font-size:13px">${fmtDate(date)} · ${logs.length}개 운동</div>
+        ${logs.map(l=>`<div class="cmp-row"><span class="cmp-name">${l.exerciseName}</span><span style="font-size:12px;color:var(--sec)">${(l.sets||[]).length}세트 · ${Math.max(...(l.sets||[]).map(s=>s.weight||0))}kg</span></div>`).join('')}
+      </div>`;
+    });
+    if(!all.length)html=`<div class="empty">운동 기록이 없습니다</div>`;
+    c.innerHTML=html;
+  }catch(e){c.innerHTML=`<div class="empty">오류: ${e.message}</div>`;}
+}
+
+// ── 회원: 피드백 ──
+async function mFeedbackView(){
+  const c=document.getElementById('mCont');
+  c.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const snap=await db.collection('feedbacks').where('memberId','==',curMember.id).get();
+    const fbs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+    let html=`<div class="card fade">
+      <div class="ctitle">피드백 요청</div>
+      <div class="field"><label>부위 선택</label>
+        <div class="chips" id="fbPart">
+          <div class="chip green" onclick="tog(this)">어깨</div><div class="chip green" onclick="tog(this)">무릎</div>
+          <div class="chip green" onclick="tog(this)">허리</div><div class="chip green" onclick="tog(this)">팔꿈치</div>
+          <div class="chip green" onclick="tog(this)">운동법</div><div class="chip green" onclick="tog(this)">기타</div>
+        </div>
+      </div>
+      <div class="field"><label>내용</label><textarea id="fbTxt" placeholder="예: 스쿼트할 때 무릎이 아파요"></textarea></div>
+      <button class="btn btn-green" onclick="sendFb()">요청 전송</button>
+    </div>
+    <div class="sec-lbl">이전 피드백</div>`;
+    if(!fbs.length){html+=`<div class="empty">피드백 기록이 없습니다</div>`;}
+    fbs.forEach(fb=>{
+      html+=`<div class="fb-card fade">
+        <div class="fb-hdr">
+          <div style="font-size:13px;font-weight:700">${fb.bodyPart||'기타'}</div>
+          <div style="display:flex;gap:5px;align-items:center">
+            <span class="badge ${fb.status==='pending'?'badge-pend':'badge-done'}">${fb.status==='pending'?'답변 대기':'완료'}</span>
+            <span style="font-size:11px;color:var(--hint)">${fmtDate(fb.createdAt)}</span>
+          </div>
+        </div>
+        <div style="font-size:13px;line-height:1.6">${fb.content}</div>
+        ${fb.reply?`<div class="fb-reply">트레이너: ${fb.reply}</div>`:''}
+      </div>`;
+    });
+    c.innerHTML=html;
+  }catch(e){c.innerHTML=`<div class="empty">오류: ${e.message}</div>`;}
+}
+
+async function sendFb(){
+  const parts=[...document.querySelectorAll('#fbPart .chip.on')].map(c=>c.textContent).join(', ');
+  const txt=document.getElementById('fbTxt').value.trim();
+  if(!txt){toast('내용을 입력해주세요');return;}
+  await db.collection('feedbacks').add({memberId:curMember.id,memberName:curMember.name,bodyPart:parts||'기타',content:txt,status:'pending',createdAt:today()});
+  toast('피드백 요청 전송 완료');mFeedbackView();
+}
+</script>
+</body>
+</html>
